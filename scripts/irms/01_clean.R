@@ -190,3 +190,14 @@ clean <- clean %>% #e.g.
 
 ### 04 export clean 
 
+paths <- c(
+  extracts           = "data/clean/irms/extracts.csv",
+  roots              = "data/clean/irms/roots.csv",
+  soil               = "data/clean/irms/soil.csv",
+  vegetation         = "data/clean/irms/vegetation.csv",
+  biomass_roots      = "data/clean/irms/biomass_roots.csv",
+  biomass_vegetation = "data/clean/irms/biomass_vegetation.csv"
+)
+Map(readr::write_csv, dfs[names(paths)], paths)
+
+writexl::write_xlsx(dfs, "data/clean/irms/all_data.xlsx")
