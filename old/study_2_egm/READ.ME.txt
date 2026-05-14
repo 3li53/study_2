@@ -1,0 +1,6 @@
+Open the R project "study_2_egm" in RStudio
+then open and run the script "flux_calculations" line by line.
+Ignore the folder ".Rproj.user"
+
+Elise Blum
+elisebs@unis.no
