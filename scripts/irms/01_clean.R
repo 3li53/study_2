@@ -4,13 +4,12 @@
 load_or_install(c("readr", "dplyr", "janitor", "purrr", "tibble"))
 
 ### ---- 01 import ----
-extracts_raw <- read.csv("./data/raw/irms/extracts/irms_extracts_final.csv", header = TRUE) # import irms output data
-roots_raw <- read.csv("./data/raw/irms/roots/irms_roots_raw.csv", header = TRUE)
-soil_raw <- read.csv("./data/raw/irms/soil/irms_soil_raw.csv", header = TRUE)
+extracts_raw   <- read.csv("./data/raw/irms/extracts/irms_extracts_final.csv", header = TRUE) # import irms output data
+roots_raw      <- read.csv("./data/raw/irms/roots/irms_roots_raw.csv", header = TRUE)
+soil_raw       <- read.csv("./data/raw/irms/soil/irms_soil_raw.csv", header = TRUE)
 vegetation_raw <- read.csv("./data/raw/irms/vegetation/irms_vegetation_raw.csv", header = TRUE)
-
-biomass_roots_raw <- read.csv("./data/raw/biomass/roots.csv")     # import biomass data
-biomass_vegetation_raw <- read.csv("./data/raw/biomass/vegetation.csv")
+biomass_roots_raw      <- read.csv("./data/raw/biomass/roots.csv", header = TRUE)     # import biomass data
+biomass_vegetation_raw <- read.csv("./data/raw/biomass/vegetation.csv", header = TRUE)
 
 dfs <- list(  # make a df list
   extracts   = extracts_raw,
