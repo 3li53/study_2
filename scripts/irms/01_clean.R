@@ -42,24 +42,28 @@ dfs <- remove_cols_all(dfs, remove_cols)   # remove from all dfs
 dfs <- rename_many_if_present(             
   dfs,
   c(
-    "ape"           = "ape_n",
-    "ape_1"         = "ape_c",
-    "d13ckorr"      = "c13korr",
-    "d15nkorr"      = "n15korr",
+    "ape"           = "ape_pct_15n",
+    "ape_1"         = "ape_pct_13c",
     "x_c"           = "c_pct",
     "x_n"           = "n_pct",
     "c_n"           = "cn_ratio",
     "n15"           = "n15_raw",
     "x13c"          = "c13_raw",
     "x13c_doc_ug_g" = "c13_doc_ug_g",
-    "x13c_pr_c"     = "c13_pr_c",
-    "x13c_pr_dw"    = "c13_pr_dw",
+    "x13c_pr_c"     = "c13_ug_pr_gc",
+    "x13c_pr_dw"    = "c13_ug_pr_gdw",
     "x15n_dtn_ug_g" = "n15_dtn_ug_g",
-    "x15n_pr_dw"    = "n15_pr_dw",
-    "x15n_pr_n"     = "n15_pr_n",
+    "x15n_pr_dw"    = "n15_ug_pr_gdw",
+    "x15n_pr_n"     = "n15_ug_pr_gn",
     "x3_4_mg"       = "sample_weight",
     "x4_5mg"        = "sample_weight",
-    "x6_8mg"        = "sample_weight"
+    "x6_8mg"        = "sample_weight",
+    "nat_abun_15n"  = "natabun_15n_atm_pct",
+    "nat_abun_13c"  = "natabun_13c_atm_pct",
+    "atom_15n"      = "atom_pct_15n",
+    "atom_13c"      = "atom_pct_13c",
+    "c_pr_dw"      = "c_mg_pr_gdw",
+    "n_pr_dw"      = "n_mg_pr_gdw"
   )
 )
 
@@ -132,24 +136,24 @@ dfs <- remove_rows_by_rules(dfs, rules)         # remove according to rules abov
 out <- compare_clean_names(dfs)            
 dfs <- out$cleaned_data                    # isolate dfs new names from nested list
 
-type_spec <- list(
+type_spec <- list(                         # list cols in each their data type
   logical   = c("beriget"),
   character = c("aboveground", "comment", "diameter", "layer",
     "pipe_nr", "run", "treatment", "tt", "cut", "veg", "wet"
   ),
   numeric   = c(
-    "aboveground_weight_tot_g", "ape_c", "ape_n", "atom_13c", "atom_15n",
+    "aboveground_weight_tot_g", "ape_pct_13c", "ape_pct_15n", "atom_pct_13c", "atom_pct_15n",
     "bottom_coarse_bag", "bottom_coarse_dry", "bottom_coarse_fresh",
     "bottom_fine_bag", "bottom_fine_dry", "bottom_fine_fresh", 
-    "bryophyte_weight", "c_pct", "c_pr_dw", "c13_doc_ug_g", "c13_pr_c",
-    "c13_pr_dw", "c13_raw", "c13korr", "cn_ratio", "doc_ug_g", "dtn_ug_g",
+    "bryophyte_weight", "c_pct", "c_mg_pr_gdw", "c13_doc_ug_g", "c13_ug_pr_gc",
+    "c13_ug_pr_gdw", "c13_raw", "c13korr", "cn_ratio", "doc_ug_g", "dtn_ug_g",
     "equ_weight", "graminoid_weight", "leaves_weight", "lichen_weight",
     "loi", "mg_c_in_sample", "mg_n_in_sample", 
     "mic_13c_ng_g", "mic_15n_ng_g", "mic_c_n", "mic_c_ug_g", "mic_n_ug_g",
     "mid_coarse_bag", "mid_coarse_dry", "mid_coarse_fresh", "mid_fine_bag",
     "mid_fine_dry", "mid_fine_fresh",
-    "n_pct","n_pr_dw", "n15_dtn_ug_g", "n15_pr_dw", "n15_pr_n", "n15_raw",
-    "n15korr", "nat_abun_13c", "nat_abun_15n",
+    "n_pct","n_mg_pr_gdw", "n15_dtn_ug_g", "n15_ug_pr_gdw", "n15_ug_pr_gn", "n15_raw",
+    "n15korr", "natabun_13c_atm_pct", "natabun_15n_atm_pct",
     "pipe_diameter", "sample_weight", "stem_weight",
     "top_coarse_bag", "top_coarse_dry", "top_coarse_fresh",
     "top_fine_bag",  "top_fine_dry",  "top_fine_fresh",
@@ -157,8 +161,9 @@ type_spec <- list(
   )
 )
 
-dfs <- lapply(dfs, coerce_types, type_spec = type_spec)
-str(c(dfs$vegetation, dfs$extracts, dfs$soil, dfs$roots, dfs$biomass_roots, dfs$biomass_vegetation))
+dfs <- lapply(dfs, coerce_types, type_spec = type_spec)      # apply type_spec to all dfs
+str(c(dfs$vegetation, dfs$extracts, dfs$soil, 
+      dfs$roots, dfs$biomass_roots, dfs$biomass_vegetation)) # print to check
 
 
 
@@ -187,6 +192,43 @@ clean <- clean %>% #e.g.
     delta_13c > -50 & delta_13c < 50
   )
 
+
+
+
+
+
+
+
+
+
+
+
+
+## ---- G. baseline corrections ----
+
+# first get the natural abundance means grouped by diameter
+natabun_means <- dfs$roots %>%
+  filter(!beriget) %>%          # only use unlabelled samples
+  calc_isotope_means(diameter)  # calculate isotopes 
+natabun_means                   # print the object
+
+# then apply new means to the df, along with downstream corrections
+roots_korr <- apply_baseline_correction(
+  df                = dfs$roots,
+  natabun_means_df  = natabun_means,
+  group_var         = diameter
+)
+
+
+
+
+
+
+
+
+
+
+
 ### 03 quality control checks
 
 ### 04 export clean 
@@ -200,5 +242,3 @@ paths <- c(
   biomass_vegetation = "data/clean/irms/biomass_vegetation.csv"
 )
 Map(readr::write_csv, dfs[names(paths)], paths)
-
-writexl::write_xlsx(dfs, "data/clean/irms/all_data.xlsx")

@@ -1,4 +1,4 @@
-run,treatment,layer,loi,sample_weight,beriget,comment,n15_raw,c13_raw,mg_n_in_sample,mg_c_in_sample,n_pct,c_pct,cn_ratio,n15korr,c13korr,tt,pipe_nr,pipe_diameter,veg,wet,cut
+run,treatment,layer,loi,sample_weight,beriget,comment,n15_raw,c13_raw,mg_n_in_sample,mg_c_in_sample,n_pct,c_pct,cn_ratio,d15nkorr,d13ckorr,tt,pipe_nr,pipe_diameter,veg,wet,cut
 1,BCD,top,NA,7.835,FALSE,,-0.74848704,-28.81832026,0.065498929,1.299590038,0.835978679,16.58698198,19.84139357,-0.840106889,-29.27996644,D,12,17,B,D,C
 1,BCD,middle,19.92031873,7.632,FALSE,,0.302357935,-26.66093572,0.033728903,0.597561052,0.441940554,7.829678354,17.71658719,0.210738087,-27.1225819,D,12,17,B,D,C
 1,BCD,bottom,NA,7.558,FALSE,,0.880667392,-24.97974037,0.022788024,0.325056098,0.301508658,4.300821613,14.26433869,0.789047543,-25.44138655,D,12,17,B,D,C
