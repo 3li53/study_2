@@ -165,73 +165,15 @@ dfs <- lapply(dfs, coerce_types, type_spec = type_spec)      # apply type_spec t
 str(c(dfs$vegetation, dfs$extracts, dfs$soil, 
       dfs$roots, dfs$biomass_roots, dfs$biomass_vegetation)) # print to check
 
-
-
-
-
-
-
-
-
-
-
-
-
 # D. handle missing values
-clean <- clean %>% # e.g.
-  mutate(flag_missing = is.na)
 
 # E. remove duplicates
-clean <- clean %>% # e.g.
-  distinct(sample_id, .keep_all = TRUE)
 
 # F. filter 
-clean <- clean %>% #e.g.
-  filter(
-    delta_15n > -50 & delta_15n < 200,
-    delta_13c > -50 & delta_13c < 50
-  )
 
+### ---- 03 quality control checks ----
 
-
-
-
-
-
-
-
-
-
-
-
-## ---- G. baseline corrections ----
-
-# first get the natural abundance means grouped by diameter
-natabun_means <- dfs$roots %>%
-  filter(!beriget) %>%          # only use unlabelled samples
-  calc_isotope_means(diameter)  # calculate isotopes 
-natabun_means                   # print the object
-
-# then apply new means to the df, along with downstream corrections
-roots_korr <- apply_baseline_correction(
-  df                = dfs$roots,
-  natabun_means_df  = natabun_means,
-  group_var         = diameter
-)
-
-
-
-
-
-
-
-
-
-
-
-### 03 quality control checks
-
-### 04 export clean 
+### ---- 04 export clean ----
 
 paths <- c(
   extracts           = "data/clean/irms/extracts.csv",

@@ -109,7 +109,7 @@ iqr_outlier <- function(df, group_var, numeric_vars) {
     ungroup()
 }
 
-# ---------------------- NATURAL ABUNDANCE -------------------------------------
+# ---------------------- NATURAL ABUNDANCE outliers-----------------------------
 
 natabun <- irms %>% filter(!beriget)
 
@@ -122,7 +122,7 @@ outlier_vars <- c(
 natabun_outliers <- iqr_outlier(natabun, group_var = c("aboveground"), numeric_vars = outlier_vars) %>%
   mutate(outlier = if_any(starts_with("outlier_"), ~ .x))
 
-# ---------------------- REMOVE OUTLIERS ---------------------------------------
+# ---------------------- REMOVE natabun OUTLIERS -------------------------------
 # manually in both dfs based on visual inspection
 
 remove_outlier_natabun <- c(176, 158, 159, 163, 157, 42,

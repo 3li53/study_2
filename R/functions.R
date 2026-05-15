@@ -1,8 +1,8 @@
 #### functions for irms/biomass scripts
 
 #### ---- 01_clean functions ----
-### ---- 00 packages ----
-# functions script for irms data
+###  ---- packages ----
+# function to load or install and load packages
 load_or_install <- function(pkgs) {
   for (pkg in pkgs) {
     cat("----\nChecking:", pkg, "\n")
@@ -20,13 +20,12 @@ load_or_install <- function(pkgs) {
   }
   cat("----\nDone.\n")
 }
+load_or_install(c("dplyr", "janitor", "purrr", "tibble")) #for this script
 
-load_or_install(c("dplyr", "janitor", "purrr", "tibble"))
+###  ---- initial cleaning ----
+##   ---- A. clean names ----
 
-### ---- 02 initial cleaning ----
-## ---- A. clean names ----
-
-### compare names across dataframes
+# compare names across dataframes
 compare_clean_names <- function(dfs) {              # collect inputs as named list
   dfs_clean <- map(dfs, ~ .x %>% clean_names())     # clean names
   name_list <- map(dfs_clean, names)                # extract names
@@ -43,15 +42,14 @@ compare_clean_names <- function(dfs) {              # collect inputs as named li
   ))                                                # Also return cleaned data for reuse
 }
 
-### remove columns from multiple dataframes
+# remove columns from multiple dataframes
 remove_cols_all <- function(dfs, cols_to_remove) {
   map(dfs, ~ .x %>%
         clean_names() %>%
         select(-any_of(cols_to_remove)))
 }
 
-### lookup and copy to other dfs
-
+# lookup and copy to other dfs
 add_from_lookup <- function(dfs, source_df, new_col, by_cols, target_names) {
   source_df <- source_df %>%
     mutate(across(all_of(by_cols), as.character))            # ensure consistent types in source
@@ -66,8 +64,7 @@ add_from_lookup <- function(dfs, source_df, new_col, by_cols, target_names) {
   return(dfs)
 }
 
-### rename multiple columns in dfs
-
+# rename multiple columns in dfs
 rename_many_if_present <- function(dfs, rename_list) {                 # function that renames cols across multiple dataframes in list
   dfs <- purrr::map(dfs, function(df) {                                # apply a function to each dataframe in the list
     for (old_name in names(rename_list)) {                             # loop over each old column name in the rename list
@@ -81,10 +78,9 @@ rename_many_if_present <- function(dfs, rename_list) {                 # functio
   return(dfs)                                                          # return the updated list of dataframes
 }
 
-## ---- B. remove non-data rows ----
+##   ---- B. remove non-data rows ----
 
-### remove rows from specific dfs, cols and entries
-
+# remove rows from specific dfs, cols and entries
 remove_rows_by_rules <- function(dfs, rules) {         # function that removes rows from selected dataframes based on matching rules
   for (nm in names(rules)) {                           # loop over dfs name from rules
     rule <- rules[[nm]]                                # extract rule for current df
@@ -101,8 +97,9 @@ remove_rows_by_rules <- function(dfs, rules) {         # function that removes r
   return(dfs)                                          # return the updated list of dataframes
 }
 
-## ---- C. fix data types ----
+##   ---- C. fix data types ----
 
+# apply datatype to specified columns for each df
 coerce_types <- function(df, type_spec) {                      # apply declared datatypes
   for (type in names(type_spec)) {                             # loop over target types
     cols <- intersect(names(df), type_spec[[type]])            # keep existing columns only
@@ -117,10 +114,11 @@ coerce_types <- function(df, type_spec) {                      # apply declared 
 ## ---- E. remove duplicates
 ## ---- F. filter
 
-## ---- G. baseline corrections ----
+#### ---- 02_calculations functions ----
 
-### calculate isotope means 
+### calculate isotope means for baseline corrections
 
+# summary function for isotope means, sd, ymin and ymax, n
 calc_isotope_means <- function(df, group_var) {            # summarize isotope data by group
   df %>%
     group_by({{ group_var }}) %>%                          # group by supplied variable
@@ -139,11 +137,13 @@ calc_isotope_means <- function(df, group_var) {            # summarize isotope d
     )
 }
 
+# atom pct function
 atom_pct <- function(delta, Rstd) {         # atom pct helper function
   Rsample <- Rstd * (1 + (delta / 1000))
   100 * (Rsample / (1 + Rsample))
 }
 
+# correct downstream calculations based on natabun group means
 apply_baseline_correction <- function(
     df,               # data with sample isotope values
     natabun_means_df, # group-wise natural abundance means

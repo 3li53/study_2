@@ -25,6 +25,31 @@ dfs <- list(  # make a df list
 
 ### ---- roots ----
 
+# first get the natural abundance means grouped by diameter
+natabun_means <- dfs$roots %>%
+  filter(!beriget) %>%          # only use unlabelled samples
+  calc_isotope_means(diameter)  # calculate isotopes 
+natabun_means                   # print the object
+
+# then apply new means to the df, along with downstream corrections
+roots_korr <- apply_baseline_correction(
+  df                = dfs$roots,
+  natabun_means_df  = natabun_means,
+  group_var         = diameter
+)
+
+# calculate root biomass
+dfs$biomass_roots <- dfs$biomass_roots %>% 
+  mutate( #weight = dry sample        - bag weight
+    mid_fine      = mid_fine_dry      - mid_fine_bag,
+    mid_coarse    = mid_coarse_dry    - mid_coarse_bag,
+    top_fine      = top_fine_dry      - top_fine_bag,
+    top_coarse    = top_coarse_dry    - top_coarse_bag,
+    bottom_fine   = bottom_fine_dry   - bottom_fine_bag,
+    bottom_coarse = bottom_coarse_dry - bottom_coarse_bag
+  ) %>% 
+  select(-matches("fresh|dry|bag")) # drop fresh, dry and bag weights
+
 ### ---- soil ----
 
 ### ---- vegetation ----
