@@ -110,46 +110,6 @@ remove_outlier_enriched <- c(239)
 irms <- irms %>% filter(!nr %in% remove_outlier_enriched)
 
 # ---------------------- BIOMASS SECTION ---------------------------------------
-root_biomass_raw <- read.csv(
-  "./data/raw/biomass/pipes_data_roots.csv",
-  header = FALSE,
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-
-h_pos  <- root_biomass_raw[1, ] |> as.character()  # mid / top / bottom
-h_frac <- root_biomass_raw[2, ] |> as.character()  # fine / coarse
-h_var  <- root_biomass_raw[3, ] |> as.character()  # pipe nr / bag / fresh / dry
-
-fill_right <- function(x) {
-  for (i in 2:length(x)) {
-    if (is.na(x[i]) || x[i] == "") {
-      x[i] <- x[i - 1]
-    }
-  }
-  x
-}
-
-h_pos  <- fill_right(h_pos)
-h_frac <- fill_right(h_frac)
-
-new_names <- character(length(h_var))
-
-for (i in seq_along(h_var)) {
-  if (i <= 4) {
-    new_names[i] <- h_var[i]
-  } else {
-    new_names[i] <- paste(h_pos[i], h_frac[i], h_var[i], sep = "_")
-  }
-}
-
-root_biomass_raw <- root_biomass_raw[-c(1:3), ]
-colnames(root_biomass_raw) <- new_names
-
-root_biomass_raw[ , -c(1:4)] <-
-  lapply(root_biomass_raw[ , -c(1:4)], as.numeric)
-
-write_csv(root_biomass_raw, "./data/raw/biomass/roots.csv")
 
 # ------------------------- calculate weights ----------------------------------
 root_biomass_raw <- root_biomass_raw |>

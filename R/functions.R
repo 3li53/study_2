@@ -1,4 +1,4 @@
-#### functions for irms scripts
+#### functions for irms/biomass scripts
 
 #### ---- 01_clean functions ----
 ### ---- 00 packages ----
@@ -101,6 +101,8 @@ remove_rows_by_rules <- function(dfs, rules) {         # function that removes r
   return(dfs)                                          # return the updated list of dataframes
 }
 
+## ---- C. fix data types ----
+
 coerce_types <- function(df, type_spec) {                      # apply declared datatypes
   for (type in names(type_spec)) {                             # loop over target types
     cols <- intersect(names(df), type_spec[[type]])            # keep existing columns only
@@ -127,42 +129,7 @@ coerce_types <- function(df, type_spec) {                      # apply declared 
 
 
 
-# ---------------------- OUTLIER FUNCTION --------------------------------------
 
-iqr_outlier <- function(df, group_var, numeric_vars) {
-  df %>%
-    group_by(across(all_of(group_var))) %>%
-    mutate(across(
-      all_of(numeric_vars),
-      ~ (. < quantile(., 0.25, na.rm = TRUE) - 1.5 * IQR(., na.rm = TRUE)) |
-        (. > quantile(., 0.75, na.rm = TRUE) + 1.5 * IQR(., na.rm = TRUE)),
-      .names = "outlier_{.col}"
-    )) %>%
-    ungroup()
-}
-
-# ----------------------- SCATTER PLOT FOR OUTLIERS ----------------------------
-plot_scatter_outliers <- function(df, x, y, outlier_col, colour = colour_vars) {
-  if (!outlier_col %in% names(df)) {
-    stop(paste("Outlier column", outlier_col, "not found"))
-  }
-  ggplot(df, aes_string(x = x, y = y, colour = colour)) +
-    geom_point(size = 3, alpha = 0.7) +
-    geom_point(
-      data = df[df[[outlier_col]] == TRUE, ],
-      colour = "black", shape = 4, size = 5, stroke = 1.2
-    ) +
-    geom_text(
-      data = df[df[[outlier_col]] == TRUE, ],
-      aes(label = nr),
-      vjust = -0.6, size = 4, colour = "black"
-    ) +
-    theme_minimal(base_size = 16)
-}
-
-colour_vars <- c(
-  "aboveground"
-)
 
 # ----------------------- natural abundance baseline ---------------------------
 calc_isotope_means <- function(df, group_var) {
@@ -216,3 +183,62 @@ apply_baseline_correction <- function(
     ) %>%
     select(-avg_d15, -ymin, -ymax, -avg_d13, -se_d13, -xmin, -xmax)
 }
+
+
+# ---------------------- OUTLIER FUNCTION --------------------------------------
+
+iqr_outlier <- function(df, group_var, numeric_vars) {
+  df %>%
+    group_by(across(all_of(group_var))) %>%
+    mutate(across(
+      all_of(numeric_vars),
+      ~ (. < quantile(., 0.25, na.rm = TRUE) - 1.5 * IQR(., na.rm = TRUE)) |
+        (. > quantile(., 0.75, na.rm = TRUE) + 1.5 * IQR(., na.rm = TRUE)),
+      .names = "outlier_{.col}"
+    )) %>%
+    ungroup()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ----------------------- SCATTER PLOT FOR OUTLIERS ----------------------------
+plot_scatter_outliers <- function(df, x, y, outlier_col, colour = colour_vars) {
+  if (!outlier_col %in% names(df)) {
+    stop(paste("Outlier column", outlier_col, "not found"))
+  }
+  ggplot(df, aes_string(x = x, y = y, colour = colour)) +
+    geom_point(size = 3, alpha = 0.7) +
+    geom_point(
+      data = df[df[[outlier_col]] == TRUE, ],
+      colour = "black", shape = 4, size = 5, stroke = 1.2
+    ) +
+    geom_text(
+      data = df[df[[outlier_col]] == TRUE, ],
+      aes(label = nr),
+      vjust = -0.6, size = 4, colour = "black"
+    ) +
+    theme_minimal(base_size = 16)
+}
+
+colour_vars <- c(
+  "aboveground"
+)
