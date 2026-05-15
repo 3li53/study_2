@@ -37,6 +37,7 @@ roots_korr <- apply_baseline_correction(
   natabun_means_df  = natabun_means,
   group_var         = diameter
 )
+dfs$roots <- roots_korr
 
 # calculate root biomass
 dfs$biomass_roots <- dfs$biomass_roots %>% 

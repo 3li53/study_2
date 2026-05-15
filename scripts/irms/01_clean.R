@@ -62,8 +62,9 @@ dfs <- rename_many_if_present(
     "nat_abun_13c"  = "natabun_13c_atm_pct",
     "atom_15n"      = "atom_pct_15n",
     "atom_13c"      = "atom_pct_13c",
-    "c_pr_dw"      = "c_mg_pr_gdw",
-    "n_pr_dw"      = "n_mg_pr_gdw"
+    "c_pr_dw"       = "c_mg_pr_gdw",
+    "n_pr_dw"       = "n_mg_pr_gdw",
+    "x_id"          = "treatment"
   )
 )
 
@@ -76,8 +77,6 @@ dfs <- add_from_lookup(                    # copy tiny tag col from extracts to 
   target_names = c("roots", "soil", "biomass_vegetation")
 )
 
-dfs$biomass_roots <- dfs$biomass_roots %>%  # first fix column name in biomass_roots
-  rename(treatment = id)
 dfs <- add_from_lookup(                     # copy pipe_nr col to dfs
   dfs = dfs,
   source_df = dfs$biomass_roots,
@@ -165,7 +164,9 @@ dfs <- lapply(dfs, coerce_types, type_spec = type_spec)      # apply type_spec t
 str(c(dfs$vegetation, dfs$extracts, dfs$soil, 
       dfs$roots, dfs$biomass_roots, dfs$biomass_vegetation)) # print to check
 
-# D. handle missing values
+# ---- D. handle missing values ----
+
+# tt in vegetation biomass
 
 # E. remove duplicates
 
