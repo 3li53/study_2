@@ -188,8 +188,6 @@ irms <- irms %>% filter(!nr %in% remove_outlier_enriched)
 # ---------------------- BIOMASS SECTION ---------------------------------------
 #this section includes the biomass data into further calculations
 
-
-
 # Attach pipe.nr into IRMS
 irms <- irms %>%
   left_join(
