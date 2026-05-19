@@ -37,7 +37,7 @@ roots_korr <- apply_baseline_correction(
   natabun_means_df  = natabun_means_roots, # which mean values to use
   group_var         = diameter             # group by root diameter
 )
-#dfs$roots <- roots_korr
+#dfs$roots <- roots_korr # transfer the corrected dataframe into the dataframe list
 
 # calculate root biomass
 dfs$biomass_roots <- dfs$biomass_roots %>% 
@@ -67,5 +67,5 @@ vegetation_korr <- apply_baseline_correction(
   natabun_means_df  = natabun_means_vegetation, # which mean values to use
   group_var         = aboveground               # group by aboveground
 )
-#dfs$vegetation <- vegetation_korr
+#dfs$vegetation <- vegetation_korr # transfer the corrected dataframe into the dataframe list
 
