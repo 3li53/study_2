@@ -26,18 +26,18 @@ dfs <- list(  # make a df list
 ### ---- roots ----
 
 # first get the natural abundance means grouped by diameter
-natabun_means <- dfs$roots %>%
+natabun_means_roots <- dfs$roots %>%
   filter(!beriget) %>%          # only use unlabelled samples
   calc_isotope_means(diameter)  # calculate isotopes 
-natabun_means                   # print the object
+natabun_means_roots             # print the object
 
 # then apply new means to the df, along with downstream corrections
 roots_korr <- apply_baseline_correction(
-  df                = dfs$roots,
-  natabun_means_df  = natabun_means,
-  group_var         = diameter
+  df                = dfs$roots,           # apply to roots dataframe
+  natabun_means_df  = natabun_means_roots, # which mean values to use
+  group_var         = diameter             # group by root diameter
 )
-dfs$roots <- roots_korr
+#dfs$roots <- roots_korr
 
 # calculate root biomass
 dfs$biomass_roots <- dfs$biomass_roots %>% 
@@ -53,5 +53,19 @@ dfs$biomass_roots <- dfs$biomass_roots %>%
 
 ### ---- soil ----
 
-### ---- vegetation ----
+### ---- vegetation ---- 
+
+# first get the natural abundance means grouped by aboveground
+natabun_means_vegetation <- dfs$vegetation %>%
+  filter(!beriget) %>%             # only use unlabelled samples
+  calc_isotope_means(aboveground)  # calculate isotopes 
+natabun_means_vegetation           # print the object
+
+# then apply new means to the df, along with downstream corrections
+vegetation_korr <- apply_baseline_correction(
+  df                = dfs$vegetation,           # apply to vegetation dataframe
+  natabun_means_df  = natabun_means_vegetation, # which mean values to use
+  group_var         = aboveground               # group by aboveground
+)
+#dfs$vegetation <- vegetation_korr
 

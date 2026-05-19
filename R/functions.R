@@ -153,7 +153,7 @@ apply_baseline_correction <- function(
 ) {
   df %>%
     left_join(
-      natabun_means, 
+      natabun_means_df, 
       by = rlang::as_name(rlang::enquo(group_var))  # join baseline by group
       ) %>%
     mutate(
@@ -164,9 +164,9 @@ apply_baseline_correction <- function(
       ape_pct_15n  = atom_pct_15n - natabun_15n_atm_pct, # atom % excess 15N
       ape_pct_13c  = atom_pct_13c - natabun_13c_atm_pct, # atom % excess 13C
       n15_ug_pr_gdw = n_mg_pr_gdw * (ape_pct_15n / 100) * 1000,  # ug 15N excess per g DW
-      n15_ug_pr_gn = (ape_pct_15n / 100) * 1e6,                 # µg 15N excess per g N
+      n15_ug_pr_gn = (ape_pct_15n / 100) * 1e6,                  # µg 15N excess per g N
       c13_ug_pr_gdw = c_mg_pr_gdw * (ape_pct_13c / 100) * 1000,  # ug 13C excess per g DW
-      c13_ug_pr_gc = (ape_pct_13c / 100) * 1e6                  # µg 13C excess per g C
+      c13_ug_pr_gc = (ape_pct_13c / 100) * 1e6                   # µg 13C excess per g C
     ) %>%
     select(-avg_d15, -se_d15, -ymin, -ymax, -avg_d13, -se_d13, -xmin, -xmax, -n) # drop baseline summaries
 }
