@@ -41,7 +41,19 @@ colnames(root_biomass_raw) <- new_names            # assign cleaned and combined
 root_biomass_raw[ , -c(1:5)] <-
   lapply(root_biomass_raw[ , -c(1:5)], as.numeric) # convert measurement columns to numeric
 
-write_csv(root_biomass_raw, "./data/raw/biomass/roots.csv")  # save cleaned dataset
+# calculate root biomass
+root_biomass <- root_biomass_raw %>% 
+  mutate( #weight = dry sample        - bag weight
+    mid_fine      = mid_fine_dry      - mid_fine_bag,
+    mid_coarse    = mid_coarse_dry    - mid_coarse_bag,
+    top_fine      = top_fine_dry      - top_fine_bag,
+    top_coarse    = top_coarse_dry    - top_coarse_bag,
+    bottom_fine   = bottom_fine_dry   - bottom_fine_bag,
+    bottom_coarse = bottom_coarse_dry - bottom_coarse_bag
+  ) %>% 
+  select(-matches("fresh|dry|bag")) # drop fresh, dry and bag weights
+
+write_csv(root_biomass, "./data/raw/biomass/roots.csv")  # save cleaned dataset
 
 
 ### ---- vegetation ----
@@ -75,8 +87,11 @@ aboveground_biomass <- aboveground_biomass_raw %>%
     pipe.nr, run, veg, cut, wet, treatment, beriget, # retain identifiers and treatment variables
     aboveground_weight_tot_g, weight_sorted_excl_bag_g, # retain processed biomass metrics
     equ_weight, graminoid_weight, bryophyte_weight,     # retain functional group weights
-    lichen_weight, stem_weight, leaves_weight          # retain additional component weights
+    lichen_weight, stem_weight, leaves_weight, vascular_weight_g  # retain additional component weights
   )
+
+
+
 
 library(readr)
 write_csv(aboveground_biomass, "./data/raw/biomass/vegetation.csv")

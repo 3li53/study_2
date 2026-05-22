@@ -19,7 +19,7 @@ dfs <- list(  # make a df list
   biomass_vegetation = biomass_vegetation_clean
 )
 
-### ---- excel corrections ----
+### ---- corrections ----
 # excel corrections are needed to correct for natural abundance means of group variables
 
 ## root group variables = diameter. there are two groups: fine and coarse.
@@ -54,17 +54,17 @@ vegetation_korr <- apply_baseline_correction(
 )
 dfs$vegetation <- vegetation_korr # transfer the corrected dataframe into the dataframe list
 
-# calculate root biomass
-dfs$biomass_roots <- dfs$biomass_roots %>% 
-  mutate( #weight = dry sample        - bag weight
-    mid_fine      = mid_fine_dry      - mid_fine_bag,
-    mid_coarse    = mid_coarse_dry    - mid_coarse_bag,
-    top_fine      = top_fine_dry      - top_fine_bag,
-    top_coarse    = top_coarse_dry    - top_coarse_bag,
-    bottom_fine   = bottom_fine_dry   - bottom_fine_bag,
-    bottom_coarse = bottom_coarse_dry - bottom_coarse_bag
-  ) %>% 
-  select(-matches("fresh|dry|bag")) # drop fresh, dry and bag weights
+# now the data for roots and vegetation are corrected according to the natural abundance values of distinct groups.
+
+## biomass
+
+# biomass data needs to be made ready for pools calculations. 
+
+
+
+# calculate vegetation biomass
+
+
 
 ### ---- soil calculations ----
 
