@@ -37,7 +37,7 @@ roots_korr <- apply_baseline_correction(
   natabun_means_df  = natabun_means_roots, # which mean values to use
   group_var         = diameter             # group by root diameter
 )
-#dfs$roots <- roots_korr # transfer the corrected dataframe into the dataframe list
+dfs$roots <- roots_korr # transfer the corrected dataframe into the dataframe list
 
 # calculate root biomass
 dfs$biomass_roots <- dfs$biomass_roots %>% 
@@ -53,6 +53,9 @@ dfs$biomass_roots <- dfs$biomass_roots %>%
 
 ### ---- soil ----
 
+# relative recovery = (excess in pool) / (total tracer added)
+str(dfs$soil)
+
 ### ---- vegetation ---- 
 
 # first get the natural abundance means grouped by aboveground
@@ -67,5 +70,5 @@ vegetation_korr <- apply_baseline_correction(
   natabun_means_df  = natabun_means_vegetation, # which mean values to use
   group_var         = aboveground               # group by aboveground
 )
-#dfs$vegetation <- vegetation_korr # transfer the corrected dataframe into the dataframe list
+dfs$vegetation <- vegetation_korr # transfer the corrected dataframe into the dataframe list
 

@@ -1,6 +1,6 @@
 #### functions for irms/biomass scripts
 
-#### ---- 01_clean functions ----
+#### ---- 01_clean.R functions ----
 ###  ---- packages ----
 # function to load or install and load packages
 load_or_install <- function(pkgs) {
@@ -114,7 +114,7 @@ coerce_types <- function(df, type_spec) {                      # apply declared 
 ## ---- E. remove duplicates
 ## ---- F. filter
 
-#### ---- 02_calculations functions ----
+#### ---- 02_calculations.R functions ----
 
 ### calculate isotope means for baseline corrections
 
@@ -170,6 +170,93 @@ apply_baseline_correction <- function(
     ) %>%
     select(-avg_d15, -se_d15, -ymin, -ymax, -avg_d13, -se_d13, -xmin, -xmax, -n) # drop baseline summaries
 }
+
+
+
+
+#### ---- 03_interrogation.R functions ----
+
+density_facets <- function(df, vars, outfile = NULL) {
+  p <- df %>%
+    dplyr::select({{ vars }}) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::everything(),
+      names_to = "Variable",
+      values_to = "Value"
+    ) %>%
+    ggplot(aes(x = Value)) +
+    geom_density(fill = "steelblue", alpha = 0.5, color = "black") +
+    facet_wrap(~ Variable, scales = "free") +
+    theme_bw() +
+    labs(x = NULL, y = "Density")
+  
+  if (!is.null(outfile)) ggsave(outfile, p)
+  p
+}
+
+violin_jitter_plot <- function(df, x, y, colour = NULL, facet = NULL,
+                               x_lab = NULL, y_lab = NULL, title = NULL) {
+  aes_base <- aes(x = .data[[x]], y = .data[[y]])
+  if (!is.null(colour))
+    aes_base <- modifyList(aes_base, aes(colour = .data[[colour]]))
+  p <- ggplot(df, aes_base) +
+    geom_violin() +
+    geom_jitter(width = 0.2, alpha = 0.7) +
+    theme_bw() +
+    labs(x = x_lab, y = y_lab, title = title)
+  if (!is.null(facet))
+    p <- p + facet_grid(vars(.data[[facet]]))
+  p
+}
+
+violin_facet_plot <- function(data, pivot_cols,
+                              x, colour = x,
+                              facet_rows, facet_cols,
+                              names_to = "Variable",
+                              values_to = "Value",
+                              title = NULL, xlab = NULL, ylab = NULL,
+                              jitter_width = 0.2, jitter_alpha = 0.7,
+                              free_y = TRUE) {
+  data_long <- data %>%
+    tidyr::pivot_longer(
+      cols = {{ pivot_cols }},
+      names_to = names_to,
+      values_to = values_to
+    )
+  ggplot(data_long,
+         aes(x = {{ x }},
+             y = .data[[values_to]],
+             colour = {{ colour }})) +
+    geom_violin() +
+    geom_jitter(width = jitter_width, alpha = jitter_alpha) +
+    facet_grid({{ facet_rows }} ~ {{ facet_cols }},
+               scales = if (free_y) "free_y" else "fixed") +
+    labs(x = xlab, y = ylab, title = title) +
+    theme_bw()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

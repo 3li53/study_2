@@ -4,7 +4,7 @@
 load_or_install(c("readr", "dplyr", "janitor", "purrr", "tibble"))
 
 ### ---- 01 import ----
-extracts_raw   <- read.csv("./data/raw/irms/extracts/irms_extracts_final.csv", header = TRUE) # import irms output data
+extracts_raw   <- read.csv("./data/raw/irms/extracts/irms_extracts_raw.csv", header = TRUE) # import irms output data
 roots_raw      <- read.csv("./data/raw/irms/roots/irms_roots_raw.csv", header = TRUE)
 soil_raw       <- read.csv("./data/raw/irms/soil/irms_soil_raw.csv", header = TRUE)
 vegetation_raw <- read.csv("./data/raw/irms/vegetation/irms_vegetation_raw.csv", header = TRUE)
@@ -121,6 +121,7 @@ dfs <- add_from_lookup(                     # copy beriget col to vegetation df 
 
 dfs$roots <- dfs$roots[-1, ]               # remove second header in roots 
 dfs$vegetation <- dfs$vegetation[-1, ]     # and vegetation
+dfs$extracts <- dfs$extracts[-1, ]         # and extracts
 
 rules <- list(                                          # rules on what to remove
   roots = list(col = "comment", patterns = c("PEACH")), #remove all PEACH samples
