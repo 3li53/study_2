@@ -3,15 +3,13 @@
 #### ---- 00 packages ----
 load_or_install(c("tidyverse"))
 
-### ---- 01 import ----
-
+### ---- 01 import data ----
 extracts_clean   <- read.csv("./data/clean/irms/extracts.csv", header = TRUE) # import irms output data
 roots_clean      <- read.csv("./data/clean/irms/roots.csv", header = TRUE)
 soil_clean       <- read.csv("./data/clean/irms/soil.csv", header = TRUE)
 vegetation_clean <- read.csv("./data/clean/irms/vegetation.csv")
 biomass_roots_clean      <- read.csv("./data/clean/irms/biomass_roots.csv", header = TRUE)     # import biomass data
 biomass_vegetation_clean <- read.csv("./data/clean/irms/biomass_vegetation.csv", header = TRUE)
-
 dfs <- list(  # make a df list
   extracts   = extracts_clean,
   roots      = roots_clean,
@@ -21,9 +19,10 @@ dfs <- list(  # make a df list
   biomass_vegetation = biomass_vegetation_clean
 )
 
-### ---- extracts ----
+### ---- excel corrections ----
+# excel corrections are needed to correct for natural abundance means of group variables
 
-### ---- roots ----
+## root group variables = diameter. there are two groups: fine and coarse.
 
 # first get the natural abundance means grouped by diameter
 natabun_means_roots <- dfs$roots %>%
@@ -39,24 +38,7 @@ roots_korr <- apply_baseline_correction(
 )
 dfs$roots <- roots_korr # transfer the corrected dataframe into the dataframe list
 
-# calculate root biomass
-dfs$biomass_roots <- dfs$biomass_roots %>% 
-  mutate( #weight = dry sample        - bag weight
-    mid_fine      = mid_fine_dry      - mid_fine_bag,
-    mid_coarse    = mid_coarse_dry    - mid_coarse_bag,
-    top_fine      = top_fine_dry      - top_fine_bag,
-    top_coarse    = top_coarse_dry    - top_coarse_bag,
-    bottom_fine   = bottom_fine_dry   - bottom_fine_bag,
-    bottom_coarse = bottom_coarse_dry - bottom_coarse_bag
-  ) %>% 
-  select(-matches("fresh|dry|bag")) # drop fresh, dry and bag weights
-
-### ---- soil ----
-
-# relative recovery = (excess in pool) / (total tracer added)
-str(dfs$soil)
-
-### ---- vegetation ---- 
+## We now do the same for vegetation. Here the variable is "aboveground" this includes 6 groups: equisetum, bryophytes, lichen, graminoid, salix_stem, salix_leaf
 
 # first get the natural abundance means grouped by aboveground
 natabun_means_vegetation <- dfs$vegetation %>%
@@ -71,4 +53,25 @@ vegetation_korr <- apply_baseline_correction(
   group_var         = aboveground               # group by aboveground
 )
 dfs$vegetation <- vegetation_korr # transfer the corrected dataframe into the dataframe list
+
+# calculate root biomass
+dfs$biomass_roots <- dfs$biomass_roots %>% 
+  mutate( #weight = dry sample        - bag weight
+    mid_fine      = mid_fine_dry      - mid_fine_bag,
+    mid_coarse    = mid_coarse_dry    - mid_coarse_bag,
+    top_fine      = top_fine_dry      - top_fine_bag,
+    top_coarse    = top_coarse_dry    - top_coarse_bag,
+    bottom_fine   = bottom_fine_dry   - bottom_fine_bag,
+    bottom_coarse = bottom_coarse_dry - bottom_coarse_bag
+  ) %>% 
+  select(-matches("fresh|dry|bag")) # drop fresh, dry and bag weights
+
+### ---- soil calculations ----
+
+# relative recovery = (excess in pool) / (total tracer added)
+str(dfs$soil)
+
+### ---- vegetation calculations ---- 
+
+
 
