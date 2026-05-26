@@ -1,7 +1,7 @@
 #### ---- 01 cleaning irms and biomass data ----
 
 ### ---- 00 packages ----
-load_or_install(c("readr", "dplyr", "janitor", "purrr", "tibble"))
+load_or_install(c("readr", "dplyr", "janitor", "purrr", "tibble", "plotly"))
 
 ### ---- 01 import ----
 extracts_raw   <- read.csv("./data/raw/irms/extracts/irms_extracts_raw.csv", header = TRUE) # import irms output data
@@ -64,7 +64,9 @@ dfs <- rename_many_if_present(
     "atom_13c"      = "atom_pct_13c",
     "c_pr_dw"       = "c_mg_pr_gdw",
     "n_pr_dw"       = "n_mg_pr_gdw",
-    "x_id"          = "treatment"
+    "x_id"          = "treatment",
+    "x13c_in_c"     = "d13c_in_c",
+    "x15n_in_n"     = "d15n_in_n" 
   )
 )
 
@@ -119,17 +121,19 @@ dfs <- add_from_lookup(                     # copy beriget col to vegetation df 
 
 ## ---- B. remove non-data rows ----
 
+# too many headers
 dfs$roots <- dfs$roots[-1, ]               # remove second header in roots 
 dfs$vegetation <- dfs$vegetation[-1, ]     # and vegetation
 dfs$extracts <- dfs$extracts[-1, ]         # and extracts
 
-rules <- list(                                          # rules on what to remove
-  roots = list(col = "comment", patterns = c("PEACH")), #remove all PEACH samples
-  soil  = list(col = "comment", patterns = c("PEACH")),
-  vegetation = list(col = "comment", patterns = c("PEACH", "too small"))
+# remove rows: PEACH standards, too small samples, and expanded ranges from csv conversion
+rules <- list(                                               # rules on what to remove
+  roots      = list(col = "comment", patterns = c("PEACH")), # remove all PEACH samples
+  soil       = list(col = "comment", patterns = c("PEACH")), # remove all PEACH samples
+  vegetation = list(col = "comment", patterns = c("PEACH", "too small")),#PEACH and too small samples
+  extracts   = list(col = "run", patterns = c("^\\s*$"))
 )
 dfs <- remove_rows_by_rules(dfs, rules)         # remove according to rules above
-
 
 ## ---- C. fix data types ----
 # compare names across dfs
@@ -167,11 +171,35 @@ str(c(dfs$vegetation, dfs$extracts, dfs$soil,
 
 # ---- D. handle missing values ----
 
-# tt in vegetation biomass
+
 
 # E. remove duplicates
 
-# F. filter 
+# ---- F. filter technical outliers ----
+
+# check the biplots for natural abundance values
+p_veg <- ggplot(subset(dfs$vegetation, beriget == "FALSE"), # subset to only plot natabun
+                aes(d13ckorr, d15nkorr, colour = aboveground)) +  geom_point() # show veg types
+ggplotly(p_veg) # plot using plotly for an interactive plot
+
+dfs$vegetation <- dfs$vegetation[dfs$vegetation$d13ckorr >= -33, ] # anything below -35 for deltaC are considered technical errors according to Anders Michelsen, therefore, removed.
+
+# roots
+p_roots <- ggplot(subset(dfs$roots, beriget =="FALSE"), # subset to only plot natabun
+                  aes(d13ckorr, d15nkorr, colour = diameter)) +  geom_point() # show vegetation types
+ggplotly(p_roots) # plot using plotly for an interactive plot
+
+# soil
+p_soil <- ggplot(subset(dfs$soil, beriget == "FALSE"), # subset to only plot natabun
+                 aes(d13ckorr, d15nkorr, colour = layer)) +  geom_point() # show soil depth
+ggplotly(p_soil) # plot using plotly for an interactive plot
+
+# extracts
+p_extracts <- ggplot(subset(dfs$extracts, beriget == "FALSE"), # subset to only plot natabun
+                     aes(d13ckorr, d15nkorr, colour = layer)) +  geom_point() # show soil depth
+ggplotly(p_extracts) # plot using plotly for an interactive plot
+
+# dfs$extracts <- dfs$extracts[dfs$extracts$d13ckorr >= -31, ] # remove one obvious outlier?
 
 ### ---- 03 quality control checks ----
 

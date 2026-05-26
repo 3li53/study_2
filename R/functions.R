@@ -89,7 +89,7 @@ remove_rows_by_rules <- function(dfs, rules) {         # function that removes r
         all_of(rule$col),                              # select column to check (as specified in the rule)
         ~ grepl(                                       # test if the column contains any of the specified patterns
           paste(rule$patterns, collapse = "|"),        # combine multiple patterns into a single regular expression
-          .x,                                          # apply the pattern matching to the column values
+          coalesce(as.character(.x), ""),              # apply the pattern matching to the column values
           ignore.case = TRUE                           # ignore letter case when matching text
         )
       ))
