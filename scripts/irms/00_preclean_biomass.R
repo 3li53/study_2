@@ -90,9 +90,6 @@ aboveground_biomass <- aboveground_biomass_raw %>%
     lichen_weight, stem_weight, leaves_weight, vascular_weight_g  # retain additional component weights
   )
 
-
-
-
 library(readr)
 write_csv(aboveground_biomass, "./data/raw/biomass/vegetation.csv")
 

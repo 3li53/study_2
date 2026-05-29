@@ -181,12 +181,11 @@ str(c(dfs$vegetation, dfs$extracts, dfs$soil,
 p_veg <- ggplot(subset(dfs$vegetation, beriget == "FALSE"), # subset to only plot natabun
                 aes(d13ckorr, d15nkorr, colour = aboveground)) +  geom_point() # show veg types
 ggplotly(p_veg) # plot using plotly for an interactive plot
-
 dfs$vegetation <- dfs$vegetation[dfs$vegetation$d13ckorr >= -33, ] # anything below -35 for deltaC are considered technical errors according to Anders Michelsen, therefore, removed.
 
 # roots
 p_roots <- ggplot(subset(dfs$roots, beriget =="FALSE"), # subset to only plot natabun
-                  aes(d13ckorr, d15nkorr, colour = diameter)) +  geom_point() # show vegetation types
+                  aes(d13ckorr, d15nkorr, colour = diameter)) +  geom_point() # show root diameter
 ggplotly(p_roots) # plot using plotly for an interactive plot
 
 # soil
@@ -196,10 +195,9 @@ ggplotly(p_soil) # plot using plotly for an interactive plot
 
 # extracts
 p_extracts <- ggplot(subset(dfs$extracts, beriget == "FALSE"), # subset to only plot natabun
-                     aes(d13ckorr, d15nkorr, colour = layer)) +  geom_point() # show soil depth
+                     aes(d13ckorr, d15nkorr, colour = fum_status)) +  geom_point() # show soil depth
 ggplotly(p_extracts) # plot using plotly for an interactive plot
-
-# dfs$extracts <- dfs$extracts[dfs$extracts$d13ckorr >= -31, ] # remove one obvious outlier?
+dfs$extracts <- dfs$extracts[dfs$extracts$d13ckorr >= -31, ] # remove one obvious outlier?
 
 ### ---- 03 quality control checks ----
 
