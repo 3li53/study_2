@@ -6,7 +6,7 @@ load_or_install(c("dplyr", "purrr", "ggplot2"))
 # extracts
 density_facets(dfs$extracts, c(d13ckorr, d15nkorr), # density of dissolved N and organic C
                outfile = "output/figures/irms_interrogation/density_facets/extracts_density.pdf") 
-density_facets(dfs$extracts, c(doc_ug_g, mic_c_ug_g), # density of dissolved N and organic C
+density_facets(dfs$extracts, c(doc, c13_doc_ug_g, n15_doc_ug_g), # density of dissolved N and organic C
                outfile = "output/figures/irms_interrogation/density_facets/extracts_density.pdf") 
 density_facets(dfs$extracts, c(dtn_ug_g, mic_n_ug_g), # density of microbial n and c and cn ratio
   outfile = "output/figures/irms_interrogation/density_facets/mic_extracts_density.pdf")
