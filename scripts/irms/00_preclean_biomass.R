@@ -3,17 +3,17 @@
 ### ---- roots ----
 
 root_biomass_raw <- read.csv(
-  "./data/raw/biomass/pipes_data_roots.csv",   # import raw csv without headers
-  header = FALSE,                              # first rows contain metadata, not column names
-  stringsAsFactors = FALSE,                    # keep all text as character (no factors)
-  check.names = FALSE                          # preserve original column names (no auto-fixing)
+  "./data/raw/biomass/pipes_data_roots.csv",       # import raw csv without headers
+  header = FALSE,                                  # first rows contain metadata, not column names
+  stringsAsFactors = FALSE,                        # keep all text as character (no factors)
+  check.names = FALSE                              # preserve original column names (no auto-fixing)
 )
 
 h_pos  <- root_biomass_raw[1, ] |> as.character()  # row 1: vertical position (mid / top / bottom)
 h_frac <- root_biomass_raw[2, ] |> as.character()  # row 2: root fraction (fine / coarse)
 h_var  <- root_biomass_raw[3, ] |> as.character()  # row 3: variable names (pipe nr / bag / fresh / dry)
 
-fill_right <- function(x) {                         # helper: propagate last non-empty value to the right
+fill_right <- function(x) {                        # helper: propagate last non-empty value to the right
   for (i in 2:length(x)) {
     if (is.na(x[i]) || x[i] == "") {               # if missing or empty
       x[i] <- x[i - 1]                             # fill with previous value
@@ -59,7 +59,7 @@ write_csv(root_biomass, "./data/raw/biomass/roots.csv")  # save cleaned dataset
 ### ---- vegetation ----
 
 aboveground_biomass_raw <- read.csv(
-  "./data/raw/biomass/pipes_data_aboveground.csv",  # import aboveground biomass csv
+  "./data/raw/biomass/pipes_data_aboveground.csv",   # import aboveground biomass csv
   header = TRUE,                                     # use first row as column names
   skip = 1                                           # skip extra header/description row
 )
@@ -84,7 +84,7 @@ aboveground_biomass <- aboveground_biomass_raw %>%
     weight_sorted_excl_bag_g = weight_sorted_excl.bag_g,          # rename sorted weight variable
   ) %>%
   select(
-    pipe.nr, run, veg, cut, wet, treatment, beriget, # retain identifiers and treatment variables
+    pipe.nr, run, veg, cut, wet, treatment, beriget,    # retain identifiers and treatment variables
     aboveground_weight_tot_g, weight_sorted_excl_bag_g, # retain processed biomass metrics
     equ_weight, graminoid_weight, bryophyte_weight,     # retain functional group weights
     lichen_weight, stem_weight, leaves_weight, vascular_weight_g  # retain additional component weights
