@@ -100,9 +100,9 @@ remove_rows_by_rules <- function(dfs, rules) {         # function that removes r
 ##   ---- C. fix data types ----
 
 # apply datatype to specified columns for each df
-coerce_types <- function(df, type_spec) {                      # apply declared datatypes
-  for (type in names(type_spec)) {                             # loop over target types
-    cols <- intersect(names(df), type_spec[[type]])            # keep existing columns only
+coerce_types <- function(df, type_spec) {                               # apply declared datatypes
+  for (type in names(type_spec)) {                                      # loop over target types
+    cols <- intersect(names(df), type_spec[[type]])                     # keep existing columns only
     if (type == "logical")   df[cols] <- lapply(df[cols], as.logical)   # coerce logical
     if (type == "numeric")   df[cols] <- lapply(df[cols], as.numeric)   # coerce numeric
     if (type == "character") df[cols] <- lapply(df[cols], as.character) # coerce character
