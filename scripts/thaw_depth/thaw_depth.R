@@ -1,16 +1,8 @@
 # Function to check, install, and load packages
-check_install_load <- function(pkg) {
-  if (!require(pkg, character.only = TRUE)) {
-    install.packages(pkg, dependencies = TRUE)
-    library(pkg, character.only = TRUE)
-  }
-}
-
-# Load required packages
-invisible(lapply(c("dplyr", "ggplot2", "tools", "readr", "stringr", "Cairo"), check_install_load))
+load_or_install(c("dplyr", "ggplot2", "tools", "readr", "stringr", "Cairo"))
 
 # define the directory and file pattern for thaw depth data
-data_dir <- "./data_files/thaw_depth/"
+data_dir <- "./data/raw/thaw_depth/"
 file_pattern <- "study_2_thaw_depth_run[1-6]\\.csv"
 
 # get all matching file paths
@@ -32,6 +24,10 @@ thaw_depth_clean <- all_thaw_depth %>%
       suppressWarnings(as.numeric(thaw_depth_center)),          # works if already numeric-like
       suppressWarnings(as.numeric(dplyr::na_if(thaw_depth_center, "-"))) # or replace "-" with NA then numeric
     ),
+    thaw_depth_periphery = dplyr::coalesce(
+      suppressWarnings(as.numeric(thaw_depth_periphery)),          # works if already numeric-like
+      suppressWarnings(as.numeric(dplyr::na_if(thaw_depth_periphery, "-"))) # or replace "-" with NA then numeric
+    ),
     # Ensure hrs_after_incubation is numeric too
     hrs_after_incubation = suppressWarnings(as.numeric(hrs_after_incubation)),
     # Derive factor columns from treatment
@@ -49,24 +45,20 @@ print(unique(thaw_depth_clean$vegetation_type))
 print(unique(thaw_depth_clean$cut))
 print(unique(thaw_depth_clean$moisture))
 
-# ---- Plot ----
-# Save as SVG (you can also use Cairo::CairoSVG("thaw_depth_1.svg", width=10, height=6))
-svg("thaw_depth_1.svg", width = 10, height = 6)
-
 ggplot(thaw_depth_clean, aes(
   x = hrs_after_incubation,
   y = thaw_depth_center,          # <-- use the numeric column
   group = treatment
 )) +
   # Use stat="summary" to plot means at each time point per treatment
-  geom_line(aes(color = vegetation_type, linetype = cut), stat = "summary", fun = mean, linewidth = 1.2) +
+  geom_line(aes(color = vegetation_type, linetype = cut), stat = "summary", fun = mean, linewidth = 1) +
   scale_y_reverse() +
   geom_point(aes(color = vegetation_type, shape = moisture), stat = "summary", fun = mean, size = 4) +
   scale_color_manual(values = c("B" = "#1b9e77", "S" = "#d95f02")) +
   scale_linetype_manual(values = c("U" = "solid", "C" = "dashed")) +
   scale_shape_manual(values = c("W" = 16, "D" = 17)) +
   labs(
-    title = "Thaw depth over time by treatment",
+    title = "Central thaw depth over time by treatment",
     x = "Hours After Incubation",
     y = "Thaw Depth (cm)",
     color = "Plant Type",
@@ -75,8 +67,29 @@ ggplot(thaw_depth_clean, aes(
   ) +
   theme_minimal()
 
-# Close the SVG device
-dev.off()
+ggplot(thaw_depth_clean, aes(
+  x = hrs_after_incubation,
+  y = thaw_depth_periphery,          # <-- use the numeric column
+  group = treatment
+)) +
+  # Use stat="summary" to plot means at each time point per treatment
+  geom_line(aes(color = vegetation_type, linetype = cut), stat = "summary", fun = mean, linewidth = 1) +
+  scale_y_reverse() +
+  geom_point(aes(color = vegetation_type, shape = moisture), stat = "summary", fun = mean, size = 4) +
+  scale_color_manual(values = c("B" = "#1b9e77", "S" = "#d95f02")) +
+  scale_linetype_manual(values = c("U" = "solid", "C" = "dashed")) +
+  scale_shape_manual(values = c("W" = 16, "D" = 17)) +
+  labs(
+    title = "Peripheral thaw depth over time by treatment",
+    x = "Hours After Incubation",
+    y = "Thaw Depth (cm)",
+    color = "Plant Type",
+    linetype = "Cutting",
+    shape = "Moisture"
+  ) +
+  theme_minimal()
+
+
 
 
 
