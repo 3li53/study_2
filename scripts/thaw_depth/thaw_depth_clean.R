@@ -19,8 +19,10 @@ all_thaw_depth <- bind_rows(thaw_depth_list)
 thaw_depth_clean <- all_thaw_depth %>%
   mutate(
     treatment = str_trim(treatment), # Remove any extra spaces before or after the treatment code
-    thaw_depth_center = as.numeric(na_if(thaw_depth_center, "-")),# Replace "-" with NA (missing value) and convert to numeric
-    thaw_depth_periphery = as.numeric(na_if(thaw_depth_periphery, "-")),
+    # Replace "-" with NA (missing value) and convert to numeric
+    thin_center    = as.numeric(na_if(thaw_depth_center, "-")),
+    thin_periphery = as.numeric(na_if(thaw_depth_periphery, "-")),
+    thick          = as.numeric(na_if(thaw_depth_cm, "-")),
     hrs_after_incubation = as.numeric(hrs_after_incubation),# Convert incubation time to a numeric variable
     # Extract treatment components from the 3-letter treatment code
     vegetation_type = factor(str_sub(treatment, 1, 1)),# First letter = vegetation type (B = bryophyte, S = salix)
@@ -34,7 +36,7 @@ thaw_depth_clean <- all_thaw_depth %>%
         -C13_pipe_lid_cm_1, -C13_pipe_lid_cm_2, -C13_pipe_lid_cm_3,
         -X
       )  %>%
-  # Keep only rows with valid thaw depth and incubation time values
+  # Keep only rows with valid thaw depth and incubation time values, the rest of the rows refer to lid measurements
   filter(
     if_any(c(thaw_depth_center, thaw_depth_periphery, thaw_depth_cm),
            ~ !is.na(.) & . != "-")
@@ -50,17 +52,18 @@ print(unique(thaw_depth_clean$moisture))
 #create a calibration dataframe
 calibration <- data.frame(
   hrs_after_incubation = thaw_depth_clean$hrs_after_incubation,
-  thick = thaw_depth_clean$thaw_depth_cm,
-  thin_center = thaw_depth_clean$thaw_depth_center,
-  thin_periphery = thaw_depth_clean$thaw_depth_periphery)
+  thick = thaw_depth_clean$thick,
+  thin_center = thaw_depth_clean$thin_center,
+  thin_periphery = thaw_depth_clean$thin_periphery,
+  run = thaw_depth_clean$run)
 
 calibration <- calibration %>% # remove unwanted rows
-  filter(!is.na(thick), thick != "-", thick != "")
+  filter(run == 3) # keep only the overlapping run
 calibration <- calibration %>% 
   mutate(thick = as.numeric(thick))
 
 # fit the regression (center points)
-model <- lm(thin_center ~ thick, data = calibration)
+model_center <- lm(thin_center ~ thick, data = calibration)
 summary(model)
 # plot the regression
 plot(calibration$thick,
@@ -69,10 +72,10 @@ plot(calibration$thick,
      ylab = "Thin probe",
      pch = 16)
 
-abline(model, col = "red", lwd = 2) # points are variably close to the fitted line....
+abline(model_center, col = "red", lwd = 2) # thin_center = 1.107 + 0.271 x thick
 
 # fit the regression (peripheral points)
-model <- lm(thin_periphery ~ thick, data = calibration)
+model_periphery <- lm(thin_periphery ~ thick, data = calibration)
 summary(model)
 # plot the regression
 plot(calibration$thick,
@@ -81,18 +84,17 @@ plot(calibration$thick,
      ylab = "Thin probe",
      pch = 16)
 
-#abline(model, col = "red", lwd = 2) # points are NOT close to the fitted line
+abline(model_periphery, col = "red", lwd = 2) # thin_periphery = 1.232 + 0.298 x thick
 
+# iterate calibration
 
+missing_center <- is.na(thaw_depth_clean$thin_center)
+missing_periphery <- is.na(thaw_depth_clean$thin_periphery)
 
-# maybe a simple offset is sufficient?
-calibration$diff <- calibration$thick - calibration$thin_center
+thaw_depth_clean$thin_center[missing_center] <-
+  predict(model_center, newdata = thaw_depth_clean[missing_center, ])
+thaw_depth_clean$thin_periphery[missing_periphery] <-
+  predict(model_periphery, newdata = thaw_depth_clean[missing_periphery, ])
 
-plot(calibration$thick,
-     calibration$diff)#,
-  
-#   xlab = "Thick probe",
-   #  ylab = "Difference (Thin - Thick)")
-abline(h = mean(calibration$diff), col = "red")
-
-
+thaw_depth_clean <- thaw_depth_clean %>% 
+  select(-c(thaw_depth_cm, thaw_depth_center, thaw_depth_periphery, thick))
