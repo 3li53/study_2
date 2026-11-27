@@ -48,6 +48,13 @@ print(unique(thaw_depth_clean$vegetation_type))
 print(unique(thaw_depth_clean$cut))
 print(unique(thaw_depth_clean$moisture))
 
+# change hour 97 to 96
+thaw_depth_clean$hrs_after_incubation[thaw_depth_clean$hrs_after_incubation == "97"] <- "96"
+
+# remove hour 6, 30, 54
+
+
+# change back to int
 
 #create a calibration dataframe
 calibration <- data.frame(
@@ -64,7 +71,7 @@ calibration <- calibration %>%
 
 # fit the regression (center points)
 model_center <- lm(thin_center ~ thick, data = calibration)
-summary(model)
+summary(model_center)
 # plot the regression
 plot(calibration$thick,
      calibration$thin_center,
@@ -76,7 +83,7 @@ abline(model_center, col = "red", lwd = 2) # thin_center = 1.107 + 0.271 x thick
 
 # fit the regression (peripheral points)
 model_periphery <- lm(thin_periphery ~ thick, data = calibration)
-summary(model)
+summary(model_periphery)
 # plot the regression
 plot(calibration$thick,
      calibration$thin_periphery,
@@ -98,3 +105,5 @@ thaw_depth_clean$thin_periphery[missing_periphery] <-
 
 thaw_depth_clean <- thaw_depth_clean %>% 
   select(-c(thaw_depth_cm, thaw_depth_center, thaw_depth_periphery, thick))
+
+write.csv(thaw_depth_clean, "data/clean/thaw_depth/thaw_depth_clean.csv", row.names = FALSE)
